@@ -1,6 +1,7 @@
 class DawgNode
   @@next_id = 0
-  attr_accessor :edges,:final,:id
+  attr_accessor :edges, :final, :id
+  
   def initialize
     @id = @@next_id
     @@next_id += 1
@@ -11,32 +12,34 @@ class DawgNode
   def to_s
     arr = []
     if @final
-        arr<<"1"
+      arr << "1"
     else
-        arr<<"0"
+      arr << "0"
     end
 
     for (label, node) in @edges
-        arr << label
-        arr << node.id.to_s
+      arr << label
+      arr << node.id.to_s
     end
 
     arr.join("_")
   end
 
   def hash
-      to_s.hash
+    to_s.hash
   end
 
   def eql?(other)
-      to_s == other.to_s
+    to_s == other.to_s
   end
+  
   def inspect
     "to_s"
   end
 end
 
 class Dawg
+  
   def initialize
     @previousWord = ""
     @root = DawgNode.new
@@ -60,7 +63,7 @@ class Dawg
 
   def insert( word )
     if word < @previousWord
-        raise "Error: Words must be inserted in alphabetical order."
+      raise "Error: Words must be inserted in alphabetical order."
     end
 
     # find common prefix between word and previous word
@@ -86,7 +89,7 @@ class Dawg
     for letter in word.split("")[commonPrefix..-1]
       nextNode = DawgNode.new
       node.edges[letter] = nextNode
-      @uncheckedNodes<< [node, letter, nextNode]
+      @uncheckedNodes << [node, letter, nextNode]
       node = nextNode
     end
 
@@ -101,23 +104,23 @@ class Dawg
   def _minimize(downTo)
     # proceed from the leaf up to a certain point
     for i in (@uncheckedNodes.length - 1).downto(downTo)
-        parent, letter, child = @uncheckedNodes[i]
-        if @minimizedNodes.has_key? child
-            # replace the child with the previously encountered one
-            parent.edges[letter] = @minimizedNodes[child]
-        else
-            # add the state to the minimized nodes.
-            @minimizedNodes[child] = child
-        end
-        @uncheckedNodes.pop
+      parent, letter, child = @uncheckedNodes[i]
+      if @minimizedNodes.has_key? child
+        # replace the child with the previously encountered one
+        parent.edges[letter] = @minimizedNodes[child]
+      else
+        # add the state to the minimized nodes.
+        @minimizedNodes[child] = child
+      end
+      @uncheckedNodes.pop
     end
   end
 
   def lookup(word)
     node = @root
     for letter in word.split("")
-        return false if !node.edges.has_key? letter
-        node = node.edges[letter]
+      return false if !node.edges.has_key? letter
+      node = node.edges[letter]
     end
     node.final
   end
@@ -125,8 +128,8 @@ class Dawg
   def find_similar(word)
     node = @root
     for letter in word.split("")
-        return [] if !node.edges.has_key? letter
-        node = node.edges[letter]
+      return [] if !node.edges.has_key? letter
+      node = node.edges[letter]
     end
     results = get_recuirsively_all(node)
 
@@ -145,11 +148,10 @@ class Dawg
       end
 
       suffixes << key if results.empty?
-
-
     end
     return suffixes
   end
+  
   def nodeCount
     @minimizedNodes.length
   end
@@ -161,7 +163,9 @@ class Dawg
     end
     count
   end
+  
   def inspect
     "Dawg"    
   end
+  
 end
